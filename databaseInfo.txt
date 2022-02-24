@@ -1,0 +1,5 @@
+server = boszxiaa5gcmvu1kldnr-mysql.services.clever-cloud.com
+username = ultxyocvesttxect
+password = GbAeUMG5jhAv0TTmxlej
+
+Database name = boszxiaa5gcmvu1kldnr
