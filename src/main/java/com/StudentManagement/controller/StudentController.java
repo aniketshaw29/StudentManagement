@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.StudentManagement.exception.IDNotFoundException;
 import com.StudentManagement.model.Student;
 import com.StudentManagement.service.StudentService;
 
@@ -45,28 +46,41 @@ public class StudentController {
 	}
 
 	@GetMapping("/getStudentbyIDLayer")
-	public String getStudentbyID() {
-		return "getStudentbyIDLayer";
+	public String getStudentbyID(Model m) {
+		m.addAttribute("url", "/getStudentbyID");
+		return "getIDLayer";
 	}
 
 	// DISPLAY - just one page required
 	@PostMapping("/getStudentbyID")
-	public String getStudentbyID(@RequestParam("id") Long id, Model m) {
-		m.addAttribute("students", studentService.displayById(id));
-		return "display";
+	public String getStudentbyID(@RequestParam("id") String id0, Model m) {
+		Long id = validateID(id0);
+		try {
+			m.addAttribute("students", studentService.displayById(id));
+			return "display";
+		} catch (IDNotFoundException e) {
+			m.addAttribute("url", "/getStudentbyIDLayer");
+			return "IDNotFound";
+		}
 	}
 
 	// update - form
 	@GetMapping("/updateStudentByIDLayer")
-	public String updateStudentByIDLayer() {
-		return "updateStudentByIDLayer";
+	public String updateStudentByIDLayer(Model m) {
+		m.addAttribute("url", "/updateStudentByID");
+		return "getIDLayer";
 	}
 
 	@PostMapping("/updateStudentByID")
-	public String updateStudentByID(@RequestParam("id") Long id, Model m) {
-		Student existingStudent = studentService.updateStudent(id);
-		m.addAttribute("student", existingStudent);
-		return "updateStudentForm";
+	public String updateStudentByID(@RequestParam("id") String id0, Model m) {
+		Long id = validateID(id0);
+		try {
+			m.addAttribute("student", studentService.updateStudent(id));
+			return "updateStudentForm";
+		} catch (IDNotFoundException e) {
+			m.addAttribute("url", "/updateStudentByIDLayer");
+			return "IDNotFound";
+		}
 	}
 
 	@GetMapping("/deleteAllStudent")
@@ -77,14 +91,29 @@ public class StudentController {
 
 	// delete - form
 	@GetMapping("/deleteStudentByIDLayer")
-	public String deleteStudentByIDLayer() {
-		return "deleteStudentByIDLayer";
+	public String deleteStudentByIDLayer(Model m) {
+		m.addAttribute("url", "/deleteStudentByID");
+		return "getIDLayer";
 	}
 
 	@PostMapping("/deleteStudentByID")
-	public String deleteStudentByID(@RequestParam("id") Long id) {
-		studentService.deleteStudentbyId(id);
-		return "redirect:/";
+	public String deleteStudentByID(@RequestParam("id") String id0, Model m) {
+		Long id = validateID(id0);
+		try {
+			studentService.deleteStudentbyId(id);
+			return "redirect:/";
+		} catch (IDNotFoundException e) {
+			m.addAttribute("url", "/deleteStudentByIDLayer");
+			return "IDNotFound";
+		}
 	}
 
+	private Long validateID(String id0) {
+		try {
+			Long id = Long.parseLong(id0);
+			return id;
+		} catch (NumberFormatException e) {
+			return 0L;
+		}
+	}
 }
